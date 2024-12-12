@@ -1,12 +1,17 @@
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from utils import process_pdf
 from langchain_community.vectorstores import SKLearnVectorStore
 from langchain_ollama import ChatOllama
 from langchain.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+from langchain.document_loaders import PyMuPDFLoader
 
+
+def process_pdf(pdf_path):
+    loader = PyMuPDFLoader(pdf_path)
+    documents = loader.load()
+    return documents
 
 pdf_path = "xyz.pdf"
 pdf_text =process_pdf(pdf_path)
