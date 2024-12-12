@@ -6,6 +6,7 @@ from langchain_ollama import ChatOllama
 from langchain.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain.document_loaders import PyMuPDFLoader
+from image_generator import ImageGenerator
 
 
 def process_pdf(pdf_path):
@@ -95,11 +96,20 @@ rag_application = RAGApplication(retriever, rag_chain)
 
 print("-------------------------after rag initialize-----------------------")
 
+image_generator = ImageGenerator()
+
 while True:
     question = input('Question: ')
     if question.lower() == "exit":
         break
 
-    answer = rag_application.run(question)
-    # print("-------------------------after rag running-----------------------")
-    print("Answer:", answer)
+    if question.lower().startswith("generate image:"):
+        # Extract the image generation prompt
+        image_prompt = question[len("generate image:"):].strip()
+        image_path = image_generator.generate_image(image_prompt)
+        print(f"Image generated and saved at: {image_path}")
+
+    else:
+        # Handle text-based question
+        answer = rag_application.run(question)
+        print("Answer:", answer)
