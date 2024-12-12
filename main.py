@@ -14,7 +14,7 @@ def process_pdf(pdf_path):
     documents = loader.load()
     return documents
 
-pdf_path = "xyz.pdf"
+pdf_path = "add-your-pdf-here.pdf"
 pdf_text =process_pdf(pdf_path)
 
 """To make the retrieval process more efficient, we divide the documents into smaller chunks using the RecursiveCharacterTextSplitter. This helps the system handle and search the text more effectively.
