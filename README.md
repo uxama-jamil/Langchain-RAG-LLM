@@ -20,7 +20,8 @@ your_project_directory/
 │   └── your_document.pdf  
 ├── db/                 # Directory for storing the persistent vector store {Required for Chroma}  
 │   └── chroma_db/  
-├── main_chroma.py      # Main application code for chroma db  
+├── gemini.py      # Main application code for gemini llm  
+├── main_chroma.py      # Main application code for chroma db
 └── main.py             # Main application code for sklearnDB 
 ```
 
