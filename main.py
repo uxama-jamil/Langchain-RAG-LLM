@@ -7,15 +7,23 @@ from langchain.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain.document_loaders import PyMuPDFLoader
 from image_generator import ImageGenerator
-
+import os
+current_dir = os.path.dirname(os.path.abspath(__file__))
+books_dir = os.path.join(current_dir, "books")
 
 def process_pdf(pdf_path):
     loader = PyMuPDFLoader(pdf_path)
     documents = loader.load()
     return documents
 
-pdf_path = "add-your-pdf-here.pdf"
-pdf_text =process_pdf(pdf_path)
+if not os.path.exists(books_dir):
+    raise FileNotFoundError(
+        f"The directory {books_dir} does not exist. Please check the path."
+    )
+
+# List all text files in the directory
+file = os.listdir(books_dir)
+pdf_text =process_pdf(file[0])
 
 """To make the retrieval process more efficient, we divide the documents into smaller chunks using the RecursiveCharacterTextSplitter. This helps the system handle and search the text more effectively.
 
