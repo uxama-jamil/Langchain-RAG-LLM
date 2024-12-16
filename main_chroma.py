@@ -64,9 +64,12 @@ if not os.path.exists(persistent_directory):
             f"The directory {books_dir} does not exist. Please check the path."
         )
     # List all text files in the directory
-    file = os.listdir(books_dir)
-    file_path = os.path.join(books_dir, file[0])
-    pdf_text =process_pdf(file_path)
+    documents = []
+    files = os.listdir(books_dir)
+    for file in files:
+        file_path = os.path.join(books_dir, file)
+        pdf_text =process_pdf(file_path)
+        documents.extend(pdf_text)
     """To make the retrieval process more efficient, we divide the documents into smaller chunks using the RecursiveCharacterTextSplitter. This helps the system handle and search the text more effectively.
 
     We can set up the text splitter by specifying the chunk size and overlap. For example, in the code below, we are setting up a text splitter with a chunk size of 250 characters and no overlap
@@ -76,7 +79,7 @@ if not os.path.exists(persistent_directory):
         chunk_size=250, chunk_overlap=0
     )
     # Split the documents into chunks
-    doc_splits = text_splitter.split_documents(pdf_text)
+    doc_splits = text_splitter.split_documents(documents)
 
     embedding = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
@@ -91,7 +94,7 @@ if not os.path.exists(persistent_directory):
     # Retrieve relevant documents based on the query
     retriever = vectorstore.as_retriever(
     search_type="similarity_score_threshold",
-    search_kwargs={"k": 4, "score_threshold": 0.2},
+    search_kwargs={"k": 4, "score_threshold": 0.1},
     )
     rag_application = RAGApplication(retriever, rag_chain)
     while True:
@@ -116,7 +119,7 @@ else:
     # Retrieve relevant documents based on the query
     retriever = db.as_retriever(
     search_type="similarity_score_threshold",
-    search_kwargs={"k": 4, "score_threshold": 0.2},
+    search_kwargs={"k": 4, "score_threshold": 0.1},
     )
     rag_application = RAGApplication(retriever, rag_chain)
     while True:
