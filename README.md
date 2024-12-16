@@ -14,6 +14,16 @@ This project implements a **Retrieval-Augmented Generation (RAG)** application t
 
 ## Project Structure
 
+```plaintext  
+your_project_directory/  
+├── books/              # Directory containing PDF files to be processed  
+│   └── your_document.pdf  
+├── db/                 # Directory for storing the persistent vector store {Required for Chroma}  
+│   └── chroma_db/  
+├── main_chroma.py      # Main application code for chroma db  
+└── main.py             # Main application code for sklearnDB 
+```
+
 ### `main.py`
 The core script that orchestrates the RAG pipeline:
 1. Extracts text from a PDF file.
@@ -37,5 +47,17 @@ Lists the Python dependencies required to run the application:
 - `langchain-huggingface`
 - `pymupdf`
 
----
+
+
+/your_project_directory  
+│  
+├── books/              # Directory containing PDF files to be processed  
+│   └── your_document.pdf  
+│  
+├── db/                 # Directory for storing the persistent vector store  {Required for Chroma}
+│   └── chroma_db/  
+│  
+├── main_chroma.py   #  Main application code for chroma db  
+
+└── main.py             # Main application code for sklearnDB
 
