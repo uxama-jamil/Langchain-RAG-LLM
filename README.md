@@ -47,17 +47,3 @@ Lists the Python dependencies required to run the application:
 - `langchain-huggingface`
 - `pymupdf`
 
-
-
-/your_project_directory  
-│  
-├── books/              # Directory containing PDF files to be processed  
-│   └── your_document.pdf  
-│  
-├── db/                 # Directory for storing the persistent vector store  {Required for Chroma}
-│   └── chroma_db/  
-│  
-├── main_chroma.py   #  Main application code for chroma db  
-
-└── main.py             # Main application code for sklearnDB
-
