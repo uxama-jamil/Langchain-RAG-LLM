@@ -63,6 +63,11 @@ if not os.path.exists(persistent_directory):
         raise FileNotFoundError(
             f"The directory {books_dir} does not exist. Please check the path."
         )
+    # Ensure the books directory is containing pdf 
+    if len(os.listdir(books_dir)):
+        raise FileNotFoundError(
+        f"The directory {books_dir} is empty. Please add the pdf within {books_dir}."
+        )
     # List all text files in the directory
     documents = []
     files = os.listdir(books_dir)
