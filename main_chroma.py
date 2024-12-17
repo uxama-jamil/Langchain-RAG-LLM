@@ -5,8 +5,9 @@ from langchain_community.vectorstores import SKLearnVectorStore,Chroma
 from langchain_ollama import ChatOllama
 from langchain.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from langchain.document_loaders import PyMuPDFLoader
+from langchain_community.document_loaders import PyMuPDFLoader
 from image_generator import ImageGenerator
+from langchain.docstore.document import Document
 import os
 
 # Define the directory containing the text files and the persistent directory
@@ -18,6 +19,8 @@ persistent_directory = os.path.join(db_dir, "chroma_db")
 def process_pdf(pdf_path):
     loader = PyMuPDFLoader(pdf_path)
     documents = loader.load()
+    for doc in documents:
+        doc.metadata["source"] = pdf_path  # Add source metadata
     return documents
 
 prompt = PromptTemplate(
@@ -64,27 +67,32 @@ if not os.path.exists(persistent_directory):
             f"The directory {books_dir} does not exist. Please check the path."
         )
     # Ensure the books directory is containing pdf 
-    if len(os.listdir(books_dir)):
+    if not len(os.listdir(books_dir)):
         raise FileNotFoundError(
         f"The directory {books_dir} is empty. Please add the pdf within {books_dir}."
         )
     # List all text files in the directory
     documents = []
-    files = os.listdir(books_dir)
+    files = [f for f in os.listdir(books_dir) if f.endswith(".pdf")]
     for file in files:
         file_path = os.path.join(books_dir, file)
-        pdf_text =process_pdf(file_path)
-        documents.extend(pdf_text)
-    """To make the retrieval process more efficient, we divide the documents into smaller chunks using the RecursiveCharacterTextSplitter. This helps the system handle and search the text more effectively.
-
-    We can set up the text splitter by specifying the chunk size and overlap. For example, in the code below, we are setting up a text splitter with a chunk size of 250 characters and no overlap
-
-    Initialize a text splitter with specified chunk size and overlap"""
+        try:
+            pdf_text = process_pdf(file_path)
+            documents.extend(pdf_text)
+        except Exception as e:
+            print(f"Error processing {file_path}: {e}")
+    
     text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
-        chunk_size=250, chunk_overlap=0
+        chunk_size=250, chunk_overlap=25
     )
     # Split the documents into chunks
-    doc_splits = text_splitter.split_documents(documents)
+    # Split documents into chunks while retaining metadata
+    print("\n--- Split documents into chunks ---")
+    doc_splits = []
+    for doc in documents:
+        splits = text_splitter.split_text(doc.page_content)
+        for split in splits:
+            doc_splits.append(Document(page_content=split, metadata=doc.metadata))
 
     embedding = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 

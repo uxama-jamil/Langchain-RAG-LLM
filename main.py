@@ -5,8 +5,9 @@ from langchain_community.vectorstores import SKLearnVectorStore
 from langchain_ollama import ChatOllama
 from langchain.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from langchain.document_loaders import PyMuPDFLoader
+from langchain_community.document_loaders import PyMuPDFLoader
 from image_generator import ImageGenerator
+from langchain.docstore.document import Document
 import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
 books_dir = os.path.join(current_dir, "books")
@@ -14,6 +15,8 @@ books_dir = os.path.join(current_dir, "books")
 def process_pdf(pdf_path):
     loader = PyMuPDFLoader(pdf_path)
     documents = loader.load()
+    for doc in documents:
+        doc.metadata["source"] = pdf_path  # Add source metadata
     return documents
 
 if not os.path.exists(books_dir):
@@ -24,12 +27,16 @@ if not len(os.listdir(books_dir)):
     raise FileNotFoundError(
         f"The directory {books_dir} is empty. Please add the pdf within {books_dir}."
     )
+# List all text files in the directory
 documents = []
-files = os.listdir(books_dir)
+files = [f for f in os.listdir(books_dir) if f.endswith(".pdf")]
 for file in files:
     file_path = os.path.join(books_dir, file)
-    pdf_text =process_pdf(file_path)
-    documents.extend(pdf_text)
+    try:
+        pdf_text = process_pdf(file_path)
+        documents.extend(pdf_text)
+    except Exception as e:
+        print(f"Error processing {file_path}: {e}")
 # List all text files in the directory
 # file = os.listdir(books_dir)
 # pdf_text =process_pdf(file[0])
@@ -40,10 +47,14 @@ for file in files:
 
  Initialize a text splitter with specified chunk size and overlap"""
 text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
-    chunk_size=250, chunk_overlap=0
+    chunk_size=250, chunk_overlap=25
 )
 # Split the documents into chunks
-doc_splits = text_splitter.split_documents(documents)
+doc_splits = []
+for doc in documents:
+    splits = text_splitter.split_text(doc.page_content)
+    for split in splits:
+        doc_splits.append(Document(page_content=split, metadata=doc.metadata))
 
 embedding = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
