@@ -20,14 +20,19 @@ if not os.path.exists(books_dir):
     raise FileNotFoundError(
         f"The directory {books_dir} does not exist. Please check the path."
     )
-if len(os.listdir(books_dir)):
+if not len(os.listdir(books_dir)):
     raise FileNotFoundError(
         f"The directory {books_dir} is empty. Please add the pdf within {books_dir}."
     )
-
+documents = []
+files = os.listdir(books_dir)
+for file in files:
+    file_path = os.path.join(books_dir, file)
+    pdf_text =process_pdf(file_path)
+    documents.extend(pdf_text)
 # List all text files in the directory
-file = os.listdir(books_dir)
-pdf_text =process_pdf(file[0])
+# file = os.listdir(books_dir)
+# pdf_text =process_pdf(file[0])
 
 """To make the retrieval process more efficient, we divide the documents into smaller chunks using the RecursiveCharacterTextSplitter. This helps the system handle and search the text more effectively.
 
@@ -38,7 +43,7 @@ text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
     chunk_size=250, chunk_overlap=0
 )
 # Split the documents into chunks
-doc_splits = text_splitter.split_documents(pdf_text)
+doc_splits = text_splitter.split_documents(documents)
 
 embedding = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
